@@ -35,4 +35,4 @@ app.get("/api/company", async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 伺服器運行於 http://localhost:${PORT}`);
-});
+}); 
