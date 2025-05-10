@@ -1,7 +1,5 @@
 .company-search {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 24px 0;
 }
 
 .search-card {
@@ -9,10 +7,12 @@
 }
 
 .search-header {
+  text-align: center;
   margin-bottom: 24px;
 }
 
 .search-header h2 {
+  font-size: 24px;
   margin-bottom: 8px;
 }
 
@@ -24,26 +24,16 @@
 .search-form {
   display: flex;
   gap: 16px;
-  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 
-.search-form .ant-form-item {
-  flex: 1;
-  min-width: 200px;
-  margin-bottom: 0;
-}
-
-.search-form .ant-input-affix-wrapper {
-  width: 100%;
-}
-
-.search-form .ant-btn {
-  height: 40px;
-  padding: 0 24px;
+.search-form .ant-input-search {
+  width: 600px;
 }
 
 .result-card {
-  background-color: #fff;
+  margin-top: 24px;
 }
 
 .ant-table-wrapper {
@@ -57,22 +47,4 @@
 
 .ant-btn-link {
   padding: 4px 8px;
-}
-
-@media (max-width: 768px) {
-  .company-search {
-    padding: 16px;
-  }
-
-  .search-form {
-    flex-direction: column;
-  }
-
-  .search-form .ant-form-item {
-    width: 100%;
-  }
-
-  .search-form .ant-btn {
-    width: 100%;
-  }
 } 

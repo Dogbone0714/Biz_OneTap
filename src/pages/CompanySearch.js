@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Input, Card, Table, Tag, Space, Button, message, Form } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Input, Card, Table, Tag, Space, Button, message, Spin } from 'antd';
 import { SearchOutlined, FilterOutlined } from '@ant-design/icons';
-import { searchByMultipleCriteria } from '../services/companyApi';
+import axios from 'axios';
 import './CompanySearch.css';
 
 const { Search } = Input;
@@ -9,8 +9,12 @@ const { Search } = Input;
 const CompanySearch = () => {
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
-  const [searchResults, setSearchResults] = useState([]);
-  const [form] = Form.useForm();
+  const [companies, setCompanies] = useState([]);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0
+  });
 
   const columns = [
     {
@@ -21,28 +25,29 @@ const CompanySearch = () => {
     },
     {
       title: '統一編號',
-      dataIndex: 'Business_Item',
-      key: 'Business_Item',
+      dataIndex: 'Business_Accounting_NO',
+      key: 'Business_Accounting_NO',
     },
     {
       title: '代表人',
-      dataIndex: 'Owner_Name',
-      key: 'Owner_Name',
+      dataIndex: 'Responsible_Name',
+      key: 'Responsible_Name',
     },
     {
       title: '資本額',
-      dataIndex: 'Capital_Amount',
-      key: 'Capital_Amount',
+      dataIndex: 'Capital_Stock_Amount',
+      key: 'Capital_Stock_Amount',
+      render: (amount) => `${amount} 元`,
     },
     {
       title: '設立日期',
-      dataIndex: 'Establish_Date',
-      key: 'Establish_Date',
+      dataIndex: 'Company_Location',
+      key: 'Company_Location',
     },
     {
       title: '營運狀態',
-      dataIndex: 'Business_Status',
-      key: 'Business_Status',
+      dataIndex: 'Company_Status',
+      key: 'Company_Status',
       render: (status) => (
         <Tag color={status === '核准設立' ? 'green' : 'red'}>
           {status}
@@ -61,28 +66,43 @@ const CompanySearch = () => {
     },
   ];
 
-  const handleSearch = async (values) => {
+  const fetchCompanies = async (searchValue, page = 1, pageSize = 10) => {
     try {
       setLoading(true);
-      const response = await searchByMultipleCriteria({
-        creditCode: values.creditCode,
-        companyName: values.companyName,
-        ownerName: values.ownerName,
-      });
+      const skip = (page - 1) * pageSize;
+      const url = `https://data.gcis.nat.gov.tw/od/data/api/5F64D864-61CB-4D0D-8AD9-492047CC1EA6?$format=json&$filter=Business_Accounting_NO eq '${searchValue}' or Company_Name eq '${searchValue}' or Responsible_Name eq '${searchValue}'&$skip=${skip}&$top=${pageSize}`;
       
-      if (response && response.length > 0) {
-        setSearchResults(response);
-        message.success('查詢成功');
-      } else {
-        setSearchResults([]);
-        message.info('未找到符合條件的資料');
-      }
+      const response = await axios.get(url);
+      const data = response.data;
+      
+      setCompanies(data.map((item, index) => ({
+        key: index,
+        ...item
+      })));
+      
+      setPagination({
+        ...pagination,
+        current: page,
+        total: data.length
+      });
     } catch (error) {
-      console.error('查詢錯誤:', error);
       message.error('查詢失敗，請稍後再試');
+      console.error('API Error:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = (value) => {
+    if (!value) {
+      message.warning('請輸入查詢內容');
+      return;
+    }
+    fetchCompanies(value, 1, pagination.pageSize);
+  };
+
+  const handleTableChange = (pagination) => {
+    fetchCompanies(searchText, pagination.current, pagination.pageSize);
   };
 
   return (
@@ -92,59 +112,29 @@ const CompanySearch = () => {
           <h2>企業查詢</h2>
           <p>輸入企業名稱、統一編號或代表人姓名進行查詢</p>
         </div>
-        <Form
-          form={form}
-          onFinish={handleSearch}
-          layout="vertical"
-        >
-          <div className="search-form">
-            <Form.Item name="companyName">
-              <Input
-                placeholder="請輸入企業名稱"
-                allowClear
-                prefix={<SearchOutlined />}
-                size="large"
-              />
-            </Form.Item>
-            <Form.Item name="creditCode">
-              <Input
-                placeholder="請輸入統一編號"
-                allowClear
-                size="large"
-              />
-            </Form.Item>
-            <Form.Item name="ownerName">
-              <Input
-                placeholder="請輸入代表人姓名"
-                allowClear
-                size="large"
-              />
-            </Form.Item>
-            <Button 
-              type="primary" 
-              icon={<SearchOutlined />}
-              size="large"
-              htmlType="submit"
-              loading={loading}
-            >
-              查詢
-            </Button>
-          </div>
-        </Form>
+        <div className="search-form">
+          <Search
+            placeholder="請輸入查詢內容"
+            allowClear
+            enterButton={<Button type="primary" icon={<SearchOutlined />}>查詢</Button>}
+            size="large"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            onSearch={handleSearch}
+          />
+          <Button icon={<FilterOutlined />}>進階篩選</Button>
+        </div>
       </Card>
 
       <Card className="result-card">
-        <Table
-          columns={columns}
-          dataSource={searchResults}
-          loading={loading}
-          pagination={{
-            total: searchResults.length,
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-          }}
-        />
+        <Spin spinning={loading}>
+          <Table
+            columns={columns}
+            dataSource={companies}
+            pagination={pagination}
+            onChange={handleTableChange}
+          />
+        </Spin>
       </Card>
     </div>
   );
