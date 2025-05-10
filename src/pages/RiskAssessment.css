@@ -1,0 +1,82 @@
+.risk-assessment {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.search-card {
+  background-color: #f0f2f5;
+  margin-bottom: 24px;
+}
+
+.search-header {
+  text-align: center;
+  padding: 24px 0;
+}
+
+.search-header h2 {
+  font-size: 24px;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.search-header p {
+  color: #666;
+  font-size: 16px;
+}
+
+.search-form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 24px 24px;
+}
+
+.risk-overview-card {
+  margin-bottom: 24px;
+}
+
+.risk-factors {
+  padding: 16px 0;
+}
+
+.risk-factor {
+  margin-bottom: 16px;
+}
+
+.risk-factor span {
+  display: block;
+  margin-bottom: 8px;
+  color: #666;
+}
+
+.litigation-card {
+  background-color: #fff;
+}
+
+.litigation-card h3 {
+  margin-bottom: 16px;
+  color: #1a1a1a;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .risk-assessment {
+    padding: 16px;
+  }
+
+  .search-header {
+    padding: 16px 0;
+  }
+
+  .search-header h2 {
+    font-size: 20px;
+  }
+
+  .search-header p {
+    font-size: 14px;
+  }
+
+  .search-form {
+    padding: 0 16px 16px;
+  }
+} 

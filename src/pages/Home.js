@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Typography, Card, Row, Col, Input, Button, message, Divider } from 'antd';
+import { Typography, Card, Row, Col, Input, Button, message, Divider, Spin } from 'antd';
 import { SearchOutlined, BarChartOutlined, SafetyOutlined, TeamOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -9,29 +9,27 @@ const { Title, Paragraph } = Typography;
 const { Search } = Input;
 
 const Home = () => {
-  const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSearch = async (value) => {
     if (!value) {
-      message.warning('請輸入查詢內容');
+      message.warning('請輸入統一編號');
       return;
     }
 
     try {
       setLoading(true);
-      const url = `https://data.gcis.nat.gov.tw/od/data/api/5F64D864-61CB-4D0D-8AD9-492047CC1EA6?$format=json&$filter=Business_Accounting_NO eq '${value}' or Company_Name eq '${value}' or Responsible_Name eq '${value}'&$top=1`;
-      
+      const url = `https://data.gcis.nat.gov.tw/od/data/api/5F64D864-61CB-4D0D-8AD9-492047CC1EA6?$format=json&$filter=Business_Accounting_NO eq ${value}`;
       const response = await axios.get(url);
-      const data = response.data;
-
-      if (data && data.length > 0) {
-        // 導航到公司詳情頁面
-        navigate(`/company/${data[0].Business_Accounting_NO}`);
-      } else {
-        message.info('未找到相關企業資料');
+      
+      if (response.data.length === 0) {
+        message.error('未找到該公司資料');
+        return;
       }
+
+      // 導航到企業詳情頁面
+      navigate(`/company/${value}`);
     } catch (error) {
       message.error('查詢失敗，請稍後再試');
       console.error('API Error:', error);
@@ -48,16 +46,15 @@ const Home = () => {
           專業的企業資訊查詢與風險評估平台
         </Paragraph>
         <div className="search-container">
-          <Search
-            placeholder="請輸入統一編號、公司名稱或代表人姓名"
-            allowClear
-            enterButton={<Button type="primary" icon={<SearchOutlined />}>查詢</Button>}
-            size="large"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            onSearch={handleSearch}
-            loading={loading}
-          />
+          <Spin spinning={loading}>
+            <Search
+              placeholder="請輸入統一編號"
+              allowClear
+              enterButton={<Button type="primary" icon={<SearchOutlined />}>查詢</Button>}
+              size="large"
+              onSearch={handleSearch}
+            />
+          </Spin>
         </div>
       </div>
 
@@ -114,11 +111,10 @@ const Home = () => {
             <Card className="about-card">
               <Title level={3}>服務特色</Title>
               <ul className="feature-list">
-                <li>整合式資訊查詢：提供全方位的企業資訊服務</li>
-                <li>風險評估系統：快速掌握企業關聯與風險指數</li>
-                <li>專業顧問服務：協助做出更明智的商業決策</li>
-                <li>API 整合服務：方便企業進行系統整合與自動化處理</li>
-                <li>多元營運模式：為不同需求的用戶提供客製化的服務方案</li>
+                <li>整合經濟部公司登記資料</li>
+                <li>提供企業風險評估分析</li>
+                <li>支援專利與商標查詢</li>
+                <li>即時更新企業資訊</li>
               </ul>
             </Card>
           </Col>
