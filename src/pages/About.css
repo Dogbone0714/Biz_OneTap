@@ -1,0 +1,68 @@
+.about-page {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.about-header {
+  margin-bottom: 24px;
+  background-color: #f5f5f5;
+}
+
+.about-intro {
+  font-size: 16px;
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+
+.features-title {
+  text-align: center;
+  margin: 48px 0 24px;
+}
+
+.features-container {
+  margin-bottom: 48px;
+}
+
+.feature-card {
+  height: 100%;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+  font-size: 48px;
+  color: #1890ff;
+  margin-bottom: 16px;
+}
+
+.mission-card {
+  background-color: #f5f5f5;
+  margin-top: 48px;
+}
+
+.mission-card h3 {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.mission-card p {
+  font-size: 16px;
+  line-height: 1.8;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .about-page {
+    padding: 16px;
+  }
+
+  .feature-card {
+    margin-bottom: 16px;
+  }
+} 

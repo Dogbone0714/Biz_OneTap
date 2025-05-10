@@ -1,0 +1,50 @@
+.home {
+  padding: 40px 0;
+}
+
+.hero-section {
+  text-align: center;
+  padding: 60px 0;
+  background: linear-gradient(135deg, #1890ff 0%, #722ed1 100%);
+  border-radius: 8px;
+  margin-bottom: 40px;
+  color: white;
+}
+
+.hero-section h1 {
+  color: white;
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.subtitle {
+  font-size: 20px;
+  margin-bottom: 40px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.search-bar {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.features {
+  margin-top: 40px;
+}
+
+.feature-icon {
+  font-size: 48px;
+  color: #1890ff;
+  margin-bottom: 20px;
+}
+
+.ant-card {
+  text-align: center;
+  padding: 24px;
+  height: 100%;
+}
+
+.ant-card:hover .feature-icon {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+} 

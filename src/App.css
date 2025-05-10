@@ -1,0 +1,57 @@
+.layout {
+  min-height: 100vh;
+}
+
+.site-layout-content {
+  min-height: 280px;
+  padding: 24px;
+  background: #fff;
+}
+
+.ant-layout-header {
+  position: fixed;
+  z-index: 1;
+  width: 100%;
+  padding: 0;
+  background: #001529;
+}
+
+.ant-layout-content {
+  margin-top: 64px;
+}
+
+.ant-layout-footer {
+  text-align: center;
+  background: #f0f2f5;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  .site-layout-content {
+    padding: 12px;
+  }
+  
+  .ant-layout-content {
+    margin-top: 48px;
+  }
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+} 

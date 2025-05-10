@@ -1,0 +1,78 @@
+.company-search {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.search-card {
+  margin-bottom: 24px;
+}
+
+.search-header {
+  margin-bottom: 24px;
+}
+
+.search-header h2 {
+  margin-bottom: 8px;
+}
+
+.search-header p {
+  color: #666;
+  margin-bottom: 0;
+}
+
+.search-form {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.search-form .ant-form-item {
+  flex: 1;
+  min-width: 200px;
+  margin-bottom: 0;
+}
+
+.search-form .ant-input-affix-wrapper {
+  width: 100%;
+}
+
+.search-form .ant-btn {
+  height: 40px;
+  padding: 0 24px;
+}
+
+.result-card {
+  background-color: #fff;
+}
+
+.ant-table-wrapper {
+  margin-top: 16px;
+}
+
+.ant-tag {
+  font-size: 14px;
+  padding: 2px 8px;
+}
+
+.ant-btn-link {
+  padding: 4px 8px;
+}
+
+@media (max-width: 768px) {
+  .company-search {
+    padding: 16px;
+  }
+
+  .search-form {
+    flex-direction: column;
+  }
+
+  .search-form .ant-form-item {
+    width: 100%;
+  }
+
+  .search-form .ant-btn {
+    width: 100%;
+  }
+} 
