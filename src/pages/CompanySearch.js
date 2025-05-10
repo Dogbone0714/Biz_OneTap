@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Input, Button, Table, message, Spin } from 'antd';
+import { Card, Input, Button, Table, message, Spin, Radio, Space } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -10,6 +10,12 @@ const { Search } = Input;
 const CompanySearch = () => {
   const [loading, setLoading] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
+  const [searchType, setSearchType] = useState('id'); // 'id' 或 'name'
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0
+  });
   const navigate = useNavigate();
 
   const columns = [
@@ -60,22 +66,36 @@ const CompanySearch = () => {
 
   const handleSearch = async (value) => {
     if (!value) {
-      message.warning('請輸入統一編號');
+      message.warning(`請輸入${searchType === 'id' ? '統一編號' : '公司名稱'}`);
       return;
     }
 
     try {
       setLoading(true);
-      const url = `https://data.gcis.nat.gov.tw/od/data/api/5F64D864-61CB-4D0D-8AD9-492047CC1EA6?$format=json&$filter=Business_Accounting_NO eq ${value}`;
+      let url;
+      
+      if (searchType === 'id') {
+        url = `https://data.gcis.nat.gov.tw/od/data/api/5F64D864-61CB-4D0D-8AD9-492047CC1EA6?$format=json&$filter=Business_Accounting_NO eq ${value}`;
+      } else {
+        const skip = (pagination.current - 1) * pagination.pageSize;
+        url = `https://data.gcis.nat.gov.tw/od/data/api/6BBA2268-1367-4B42-9CCA-BC17499EBE8C?$format=json&$filter=Company_Name like ${value} and Company_Status eq '核准設立'&$skip=${skip}&$top=${pagination.pageSize}`;
+      }
+
       const response = await axios.get(url);
       
       if (response.data.length === 0) {
-        message.error('未找到該公司資料');
+        message.error('未找到相關公司資料');
         setSearchResults([]);
         return;
       }
 
       setSearchResults(response.data);
+      if (searchType === 'name') {
+        setPagination(prev => ({
+          ...prev,
+          total: response.data.length
+        }));
+      }
     } catch (error) {
       message.error('查詢失敗，請稍後再試');
       console.error('API Error:', error);
@@ -85,21 +105,36 @@ const CompanySearch = () => {
     }
   };
 
+  const handleTableChange = (pagination) => {
+    setPagination(pagination);
+    handleSearch(searchResults[0]?.Company_Name || '');
+  };
+
   return (
     <div className="company-search">
       <Card className="search-card">
         <div className="search-header">
           <h2>企業查詢</h2>
-          <p>輸入統一編號查詢企業基本資料</p>
+          <p>輸入統一編號或公司名稱查詢企業基本資料</p>
         </div>
         <div className="search-form">
-          <Search
-            placeholder="請輸入統一編號"
-            allowClear
-            enterButton={<Button type="primary" icon={<SearchOutlined />}>查詢</Button>}
-            size="large"
-            onSearch={handleSearch}
-          />
+          <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+            <Radio.Group 
+              value={searchType} 
+              onChange={(e) => setSearchType(e.target.value)}
+              buttonStyle="solid"
+            >
+              <Radio.Button value="id">統一編號</Radio.Button>
+              <Radio.Button value="name">公司名稱</Radio.Button>
+            </Radio.Group>
+            <Search
+              placeholder={`請輸入${searchType === 'id' ? '統一編號' : '公司名稱'}`}
+              allowClear
+              enterButton={<Button type="primary" icon={<SearchOutlined />}>查詢</Button>}
+              size="large"
+              onSearch={handleSearch}
+            />
+          </Space>
         </div>
       </Card>
 
@@ -110,7 +145,13 @@ const CompanySearch = () => {
               columns={columns}
               dataSource={searchResults}
               rowKey="Business_Accounting_NO"
-              pagination={false}
+              pagination={searchType === 'name' ? {
+                ...pagination,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total) => `共 ${total} 筆資料`
+              } : false}
+              onChange={searchType === 'name' ? handleTableChange : undefined}
             />
           </Card>
         )}
