@@ -1,8 +1,9 @@
 .navbar {
+  background-color: #e6f7ff !important;
+  border-bottom: 1px solid #91d5ff;
+  padding: 0 24px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 50px;
+  justify-content: center;
 }
 
 .logo {
@@ -11,7 +12,7 @@
 }
 
 .logo a {
-  color: white;
+  color: #1890ff;
   font-size: 20px;
   font-weight: bold;
   text-decoration: none;
@@ -20,8 +21,34 @@
 .ant-menu {
   flex: 1;
   line-height: 64px;
+  display: flex;
+  justify-content: center;
+  max-width: 600px;
 }
 
 .ant-menu-item {
   font-size: 16px;
+  margin: 0 20px !important;
+}
+
+.navbar .ant-menu-item {
+  color: #1890ff !important;
+}
+
+.navbar .ant-menu-item-selected {
+  background-color: #bae7ff !important;
+  color: #1890ff !important;
+}
+
+.navbar .ant-menu-item:hover {
+  color: #40a9ff !important;
+  background-color: #bae7ff !important;
+}
+
+.navbar .ant-menu-item a {
+  color: inherit;
+}
+
+.navbar .ant-menu-item-selected a {
+  color: #1890ff !important;
 } 

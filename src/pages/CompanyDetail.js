@@ -1,24 +1,69 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Descriptions, Tabs, Table, Progress, Row, Col, Statistic } from 'antd';
+import { Card, Descriptions, Tabs, Table, Progress, Row, Col, Statistic, Spin, message } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
+import axios from 'axios';
 import './CompanyDetail.css';
 
 const { TabPane } = Tabs;
 
 const CompanyDetail = () => {
   const { id } = useParams();
+  const [loading, setLoading] = useState(true);
+  const [companyData, setCompanyData] = useState(null);
+  const [directorsData, setDirectorsData] = useState([]);
+  const [loadingDirectors, setLoadingDirectors] = useState(false);
 
-  const companyInfo = {
-    name: '台積電股份有限公司',
-    creditCode: '22099131',
-    legalPerson: '魏哲家',
-    registeredCapital: '2593億新台幣',
-    establishDate: '1987-02-21',
-    status: '在業',
-    address: '新竹市東區力行六路8號',
-    businessScope: '積體電路之製造、銷售、測試及電腦輔助設計業務',
+  const fetchCompanyData = async () => {
+    try {
+      const url = `https://data.gcis.nat.gov.tw/od/data/api/5F64D864-61CB-4D0D-8AD9-492047CC1EA6?$format=json&$filter=Business_Accounting_NO eq '${id}'&$skip=0&$top=1000`;
+      const response = await axios.get(url, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.data.length === 0) {
+        message.error('未找到公司資料');
+        return;
+      }
+      
+      setCompanyData(response.data[0]);
+    } catch (error) {
+      message.error('獲取公司資料失敗');
+      console.error('API Error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const fetchDirectorsData = async () => {
+    try {
+      setLoadingDirectors(true);
+      const url = `https://data.gcis.nat.gov.tw/od/data/api/236EE382-4942-41A9-BD03-CA0709025E7C?$format=json&$filter=Business_Accounting_NO eq '${id}'&$skip=0&$top=1000`;
+      const response = await axios.get(url, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.data.length > 0) {
+        setDirectorsData(response.data);
+      }
+    } catch (error) {
+      message.error('獲取董監事資料失敗');
+      console.error('API Error:', error);
+    } finally {
+      setLoadingDirectors(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCompanyData();
+    fetchDirectorsData();
+  }, [id]);
 
   const riskData = {
     riskScore: 85,
@@ -71,20 +116,110 @@ const CompanyDetail = () => {
     }
   ];
 
+  const directorsColumns = [
+    {
+      title: '職稱',
+      dataIndex: 'Title',
+      key: 'Title',
+    },
+    {
+      title: '姓名',
+      dataIndex: 'Name',
+      key: 'Name',
+    },
+    {
+      title: '所代表法人',
+      dataIndex: 'Representative_Company',
+      key: 'Representative_Company',
+    },
+    {
+      title: '出資額',
+      dataIndex: 'Investment_Amount',
+      key: 'Investment_Amount',
+      render: (text) => text ? `NT$ ${text.toLocaleString()}` : '-',
+    },
+    {
+      title: '持股數',
+      dataIndex: 'Shares',
+      key: 'Shares',
+      render: (text) => text ? text.toLocaleString() : '-',
+    },
+  ];
+
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (!companyData) {
+    return (
+      <div className="error-container">
+        <Card>
+          <h2>未找到公司資料</h2>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="company-detail">
-      <Card className="company-info-card">
-        <Descriptions title="企業基本資料" bordered>
-          <Descriptions.Item label="企業名稱">{companyInfo.name}</Descriptions.Item>
-          <Descriptions.Item label="統一編號">{companyInfo.creditCode}</Descriptions.Item>
-          <Descriptions.Item label="代表人">{companyInfo.legalPerson}</Descriptions.Item>
-          <Descriptions.Item label="資本額">{companyInfo.registeredCapital}</Descriptions.Item>
-          <Descriptions.Item label="設立日期">{companyInfo.establishDate}</Descriptions.Item>
-          <Descriptions.Item label="營運狀態">{companyInfo.status}</Descriptions.Item>
-          <Descriptions.Item label="公司地址" span={3}>{companyInfo.address}</Descriptions.Item>
-          <Descriptions.Item label="營業項目" span={3}>{companyInfo.businessScope}</Descriptions.Item>
-        </Descriptions>
-      </Card>
+      <Tabs defaultActiveKey="1">
+        <TabPane tab="基本資料" key="1">
+          <Card className="detail-card">
+            <Descriptions title="公司基本資料" bordered>
+              <Descriptions.Item label="公司名稱" span={3}>
+                {companyData.Company_Name}
+              </Descriptions.Item>
+              <Descriptions.Item label="統一編號">
+                {companyData.Business_Accounting_NO}
+              </Descriptions.Item>
+              <Descriptions.Item label="公司狀態">
+                {companyData.Company_Status}
+              </Descriptions.Item>
+              <Descriptions.Item label="資本額">
+                NT$ {companyData.Capital_Stock_Amount.toLocaleString()}
+              </Descriptions.Item>
+              <Descriptions.Item label="代表人" span={3}>
+                {companyData.Responsible_Name}
+              </Descriptions.Item>
+              <Descriptions.Item label="公司所在地" span={3}>
+                {companyData.Company_Location}
+              </Descriptions.Item>
+              <Descriptions.Item label="登記機關" span={3}>
+                {companyData.Authority}
+              </Descriptions.Item>
+              <Descriptions.Item label="設立日期">
+                {companyData.Establishment_Date}
+              </Descriptions.Item>
+              <Descriptions.Item label="最後變更日期">
+                {companyData.Last_Modified_Date}
+              </Descriptions.Item>
+              <Descriptions.Item label="營業項目" span={3}>
+                {companyData.Business_Items}
+              </Descriptions.Item>
+            </Descriptions>
+          </Card>
+        </TabPane>
+        <TabPane tab="董監事資料" key="2">
+          <Card className="detail-card">
+            <Spin spinning={loadingDirectors}>
+              {directorsData.length > 0 ? (
+                <Table
+                  columns={directorsColumns}
+                  dataSource={directorsData}
+                  rowKey={(record) => `${record.Title}-${record.Name}`}
+                  pagination={false}
+                />
+              ) : (
+                <div className="no-data">無董監事資料</div>
+              )}
+            </Spin>
+          </Card>
+        </TabPane>
+      </Tabs>
 
       <Card className="risk-assessment-card">
         <h2>風險評估</h2>
