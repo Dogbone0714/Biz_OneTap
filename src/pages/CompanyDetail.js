@@ -16,23 +16,53 @@ const CompanyDetail = () => {
 
   const fetchCompanyData = async () => {
     try {
-      const url = `https://data.gcis.nat.gov.tw/od/data/api/5F64D864-61CB-4D0D-8AD9-492047CC1EA6?$format=json&$filter=Business_Accounting_NO eq '${id}'&$skip=0&$top=1000`;
+      setLoading(true);
+      // 確保 id 不為空
+      if (!id) {
+        message.error('統一編號不能為空');
+        return;
+      }
+
+      // 構建 API URL
+      const baseUrl = 'https://data.gcis.nat.gov.tw/od/data/api/5F64D864-61CB-4D0D-8AD9-492047CC1EA6';
+      const params = new URLSearchParams({
+        $format: 'json',
+        $filter: `Business_Accounting_NO eq '${id}'`,
+        $skip: '0',
+        $top: '1000'
+      });
+
+      const url = `${baseUrl}?${params.toString()}`;
+      console.log('API URL:', url); // 調試用
+
       const response = await axios.get(url, {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         }
       });
+
+      console.log('API Response:', response.data); // 調試用
       
-      if (response.data.length === 0) {
+      if (!response.data || response.data.length === 0) {
         message.error('未找到公司資料');
+        setCompanyData(null);
         return;
       }
       
       setCompanyData(response.data[0]);
     } catch (error) {
-      message.error('獲取公司資料失敗');
       console.error('API Error:', error);
+      if (error.response) {
+        console.error('Error Response:', error.response.data);
+        message.error(`API 錯誤: ${error.response.status} - ${error.response.statusText}`);
+      } else if (error.request) {
+        console.error('Error Request:', error.request);
+        message.error('無法連接到伺服器，請檢查網路連接');
+      } else {
+        message.error('發生錯誤：' + error.message);
+      }
+      setCompanyData(null);
     } finally {
       setLoading(false);
     }
@@ -41,28 +71,49 @@ const CompanyDetail = () => {
   const fetchDirectorsData = async () => {
     try {
       setLoadingDirectors(true);
-      const url = `https://data.gcis.nat.gov.tw/od/data/api/236EE382-4942-41A9-BD03-CA0709025E7C?$format=json&$filter=Business_Accounting_NO eq '${id}'&$skip=0&$top=1000`;
+      if (!id) {
+        return;
+      }
+
+      const baseUrl = 'https://data.gcis.nat.gov.tw/od/data/api/236EE382-4942-41A9-BD03-CA0709025E7C';
+      const params = new URLSearchParams({
+        $format: 'json',
+        $filter: `Business_Accounting_NO eq '${id}'`,
+        $skip: '0',
+        $top: '1000'
+      });
+
+      const url = `${baseUrl}?${params.toString()}`;
+      console.log('Directors API URL:', url); // 調試用
+
       const response = await axios.get(url, {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         }
       });
+
+      console.log('Directors API Response:', response.data); // 調試用
       
-      if (response.data.length > 0) {
+      if (response.data && response.data.length > 0) {
         setDirectorsData(response.data);
+      } else {
+        setDirectorsData([]);
       }
     } catch (error) {
+      console.error('Directors API Error:', error);
       message.error('獲取董監事資料失敗');
-      console.error('API Error:', error);
+      setDirectorsData([]);
     } finally {
       setLoadingDirectors(false);
     }
   };
 
   useEffect(() => {
-    fetchCompanyData();
-    fetchDirectorsData();
+    if (id) {
+      fetchCompanyData();
+      fetchDirectorsData();
+    }
   }, [id]);
 
   const riskData = {
@@ -159,6 +210,7 @@ const CompanyDetail = () => {
       <div className="error-container">
         <Card>
           <h2>未找到公司資料</h2>
+          <p>請確認統一編號是否正確</p>
         </Card>
       </div>
     );
