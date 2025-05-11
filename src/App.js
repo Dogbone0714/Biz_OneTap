@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import CompanySearch from './pages/CompanySearch';
 import CompanyDetail from './pages/CompanyDetail';
+import About from './pages/About';
 import './App.css';
 
 const { Header, Content, Footer } = Layout;
@@ -22,6 +23,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/search" element={<CompanySearch />} />
               <Route path="/company/:id" element={<CompanyDetail />} />
+              <Route path="/about" element={<About />} />
             </Routes>
           </div>
         </Content>
