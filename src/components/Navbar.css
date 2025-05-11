@@ -1,9 +1,12 @@
 .navbar {
-  background-color: #e6f7ff !important;
-  border-bottom: 1px solid #91d5ff;
-  padding: 0 24px;
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  padding: 0 50px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   display: flex;
   justify-content: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .logo {
@@ -18,37 +21,43 @@
   text-decoration: none;
 }
 
-.ant-menu {
-  flex: 1;
-  line-height: 64px;
-  display: flex;
-  justify-content: center;
-  max-width: 600px;
-}
-
-.ant-menu-item {
-  font-size: 16px;
-  margin: 0 20px !important;
+.navbar .ant-menu {
+  background: transparent;
+  border: none;
+  max-width: 800px;
+  width: 100%;
 }
 
 .navbar .ant-menu-item {
-  color: #1890ff !important;
-}
-
-.navbar .ant-menu-item-selected {
-  background-color: #bae7ff !important;
-  color: #1890ff !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  margin: 0 20px !important;
+  font-size: 16px;
+  height: 64px;
+  line-height: 64px;
+  transition: all 0.3s;
 }
 
 .navbar .ant-menu-item:hover {
-  color: #40a9ff !important;
-  background-color: #bae7ff !important;
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.navbar .ant-menu-item-selected {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.2) !important;
 }
 
 .navbar .ant-menu-item a {
   color: inherit;
 }
 
-.navbar .ant-menu-item-selected a {
-  color: #1890ff !important;
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 20px;
+  }
+  
+  .navbar .ant-menu-item {
+    margin: 0 10px !important;
+    font-size: 14px;
+  }
 } 
