@@ -6,22 +6,24 @@
 
 .hero-section {
   text-align: center;
-  padding: 48px 0;
-  background-color: #f5f5f5;
-  border-radius: 8px;
+  padding: 60px 0;
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  border-radius: 12px;
   margin-bottom: 48px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .hero-section h1 {
   color: white;
   font-size: 48px;
   margin-bottom: 20px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .subtitle {
   font-size: 18px;
   margin: 16px 0 32px;
-  color: #666;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .search-container {
@@ -37,6 +39,7 @@
   font-size: 48px;
   color: #1890ff;
   margin-bottom: 16px;
+  transition: all 0.3s ease;
 }
 
 .feature-card {
@@ -46,27 +49,35 @@
 
 .about-section {
   margin-top: 48px;
+  padding: 24px;
+  background-color: #fafafa;
+  border-radius: 12px;
 }
 
 .section-title {
   text-align: center;
   margin-bottom: 32px;
+  color: #1890ff;
 }
 
 .about-card {
   height: 100%;
-  background-color: #f5f5f5;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .feature-list {
   list-style-type: none;
   padding: 0;
+  text-align: left;
 }
 
 .feature-list li {
   margin-bottom: 16px;
   padding-left: 24px;
   position: relative;
+  color: #666;
 }
 
 .feature-list li:before {
@@ -81,11 +92,38 @@
   text-align: center;
   padding: 24px;
   height: 100%;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border: 1px solid #f0f0f0;
+}
+
+.ant-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
 .ant-card:hover .feature-icon {
   transform: scale(1.1);
-  transition: transform 0.3s ease;
+  color: #096dd9;
+}
+
+.ant-input-search {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ant-input-search .ant-input {
+  border-radius: 6px 0 0 6px;
+  border: none;
+}
+
+.ant-input-search .ant-input-search-button {
+  border-radius: 0 6px 6px 0;
+  background: #096dd9;
+  border: none;
+}
+
+.ant-input-search .ant-input-search-button:hover {
+  background: #0050b3;
 }
 
 @media (max-width: 768px) {
@@ -94,10 +132,18 @@
   }
 
   .hero-section {
-    padding: 32px 16px;
+    padding: 40px 16px;
   }
 
-  .feature-card {
+  .hero-section h1 {
+    font-size: 36px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+  }
+
+  .ant-card {
     margin-bottom: 16px;
   }
 } 
