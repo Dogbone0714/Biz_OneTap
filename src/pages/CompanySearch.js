@@ -77,11 +77,37 @@ const CompanySearch = () => {
         return;
       }
 
-      setSearchResults(response.data);
+      // 資料轉換和格式化
+      const formattedData = response.data.map(item => {
+        if (searchType === 'id' || searchType === 'name') {
+          return {
+            ...item,
+            Capital_Stock_Amount: item.Capital_Stock_Amount ? 
+              parseInt(item.Capital_Stock_Amount).toLocaleString() : '0',
+            Establishment_Date: item.Establishment_Date ? 
+              item.Establishment_Date.split('T')[0] : '-',
+            Last_Modified_Date: item.Last_Modified_Date ? 
+              item.Last_Modified_Date.split('T')[0] : '-',
+            Company_Status: formatCompanyStatus(item.Company_Status)
+          };
+        } else if (searchType === 'business') {
+          return {
+            ...item,
+            Capital_Amount: item.Capital_Amount ? 
+              parseInt(item.Capital_Amount).toLocaleString() : '0',
+            Establishment_Date: item.Establishment_Date ? 
+              item.Establishment_Date.split('T')[0] : '-',
+            Business_Status: formatBusinessStatus(item.Business_Status)
+          };
+        }
+        return item;
+      });
+
+      setSearchResults(formattedData);
       if (searchType === 'name') {
         setPagination(prev => ({
           ...prev,
-          total: response.data.length
+          total: formattedData.length
         }));
       }
     } catch (error) {
@@ -106,41 +132,92 @@ const CompanySearch = () => {
     handleSearch(searchResults[0]?.Company_Name || '');
   };
 
+  // 格式化公司狀態
+  const formatCompanyStatus = (status) => {
+    const statusMap = {
+      '01': '核准設立',
+      '02': '撤銷',
+      '03': '廢止',
+      '04': '停業',
+      '05': '解散',
+      '06': '歇業',
+      '07': '合併',
+      '08': '分割',
+      '09': '變更組織',
+      '10': '遷址',
+      '11': '撤銷登記',
+      '12': '廢止登記',
+      '13': '停業登記',
+      '14': '解散登記',
+      '15': '歇業登記',
+      '16': '合併登記',
+      '17': '分割登記',
+      '18': '變更組織登記',
+      '19': '遷址登記'
+    };
+    return statusMap[status] || status;
+  };
+
+  // 格式化商業狀態
+  const formatBusinessStatus = (status) => {
+    const statusMap = {
+      '01': '核准設立',
+      '02': '撤銷',
+      '03': '廢止',
+      '04': '停業',
+      '05': '解散',
+      '06': '歇業',
+      '07': '合併',
+      '08': '分割',
+      '09': '變更組織',
+      '10': '遷址'
+    };
+    return statusMap[status] || status;
+  };
+
   const columns = [
     {
       title: '公司名稱',
       dataIndex: 'Company_Name',
       key: 'Company_Name',
+      width: '25%',
+      ellipsis: true,
     },
     {
       title: '統一編號',
       dataIndex: 'Business_Accounting_NO',
       key: 'Business_Accounting_NO',
+      width: '15%',
     },
     {
       title: '代表人',
       dataIndex: 'Responsible_Name',
       key: 'Responsible_Name',
+      width: '15%',
     },
     {
       title: '資本額',
       dataIndex: 'Capital_Stock_Amount',
       key: 'Capital_Stock_Amount',
-      render: (text) => `NT$ ${text.toLocaleString()}`,
+      width: '15%',
+      render: (text) => `NT$ ${text}`,
     },
     {
       title: '設立日期',
       dataIndex: 'Establishment_Date',
       key: 'Establishment_Date',
+      width: '15%',
     },
     {
       title: '公司狀態',
       dataIndex: 'Company_Status',
       key: 'Company_Status',
+      width: '15%',
     },
     {
       title: '操作',
       key: 'action',
+      width: '10%',
       render: (_, record) => (
         <Button 
           type="link" 
@@ -157,41 +234,50 @@ const CompanySearch = () => {
       title: '商業名稱',
       dataIndex: 'Business_Name',
       key: 'Business_Name',
+      width: '25%',
+      ellipsis: true,
     },
     {
       title: '統一編號',
       dataIndex: 'President_No',
       key: 'President_No',
+      width: '15%',
     },
     {
       title: '負責人',
       dataIndex: 'President_Name',
       key: 'President_Name',
+      width: '15%',
     },
     {
       title: '資本額',
       dataIndex: 'Capital_Amount',
       key: 'Capital_Amount',
-      render: (text) => `NT$ ${text.toLocaleString()}`,
+      width: '15%',
+      render: (text) => `NT$ ${text}`,
     },
     {
       title: '設立日期',
       dataIndex: 'Establishment_Date',
       key: 'Establishment_Date',
+      width: '15%',
     },
     {
       title: '營業狀態',
       dataIndex: 'Business_Status',
       key: 'Business_Status',
+      width: '15%',
     },
     {
       title: '管轄機關',
       dataIndex: 'Agency',
       key: 'Agency',
+      width: '15%',
     },
     {
       title: '操作',
       key: 'action',
+      width: '10%',
       render: (_, record) => (
         <Button 
           type="link" 
