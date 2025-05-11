@@ -18,6 +18,94 @@ const CompanySearch = () => {
   });
   const navigate = useNavigate();
 
+  const handleSearch = async (value) => {
+    if (!value) {
+      message.warning(`請輸入${searchType === 'id' ? '統一編號' : searchType === 'name' ? '公司名稱' : '統一編號'}`);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      let url;
+      
+      if (searchType === 'id') {
+        const baseUrl = 'https://data.gcis.nat.gov.tw/od/data/api/5F64D864-61CB-4D0D-8AD9-492047CC1EA6';
+        const params = new URLSearchParams({
+          $format: 'json',
+          $filter: `Business_Accounting_NO eq '${value}'`,
+          $skip: '0',
+          $top: '1000'
+        });
+        url = `${baseUrl}?${params.toString()}`;
+      } else if (searchType === 'name') {
+        const skip = (pagination.current - 1) * pagination.pageSize;
+        const baseUrl = 'https://data.gcis.nat.gov.tw/od/data/api/6BBA2268-1367-4B42-9CCA-BC17499EBE8C';
+        const params = new URLSearchParams({
+          $format: 'json',
+          $filter: `contains(Company_Name,'${encodeURIComponent(value)}') and Company_Status eq '01'`,
+          $skip: skip.toString(),
+          $top: pagination.pageSize.toString()
+        });
+        url = `${baseUrl}?${params.toString()}`;
+      } else if (searchType === 'business') {
+        const baseUrl = 'https://data.gcis.nat.gov.tw/od/data/api/7E6AFA72-AD6A-46D3-8681-ED77951D912D';
+        const params = new URLSearchParams({
+          $format: 'json',
+          $filter: `President_No eq '${value}'`,
+          $skip: '0',
+          $top: '1000'
+        });
+        url = `${baseUrl}?${params.toString()}`;
+      }
+
+      console.log('API URL:', url); // 調試用
+
+      const response = await axios.get(url, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+        withCredentials: false
+      });
+
+      console.log('API Response:', response.data); // 調試用
+      
+      if (!response.data || response.data.length === 0) {
+        message.error('未找到相關資料');
+        setSearchResults([]);
+        return;
+      }
+
+      setSearchResults(response.data);
+      if (searchType === 'name') {
+        setPagination(prev => ({
+          ...prev,
+          total: response.data.length
+        }));
+      }
+    } catch (error) {
+      console.error('API Error:', error);
+      if (error.response) {
+        console.error('Error Response:', error.response.data);
+        message.error(`API 錯誤: ${error.response.status} - ${error.response.statusText}`);
+      } else if (error.request) {
+        console.error('Error Request:', error.request);
+        message.error('無法連接到伺服器，請檢查網路連接');
+      } else {
+        message.error('發生錯誤：' + error.message);
+      }
+      setSearchResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTableChange = (pagination) => {
+    setPagination(pagination);
+    handleSearch(searchResults[0]?.Company_Name || '');
+  };
+
   const columns = [
     {
       title: '公司名稱',
@@ -115,60 +203,6 @@ const CompanySearch = () => {
     },
   ];
 
-  const handleSearch = async (value) => {
-    if (!value) {
-      message.warning(`請輸入${searchType === 'id' ? '統一編號' : searchType === 'name' ? '公司名稱' : '統一編號'}`);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      let url;
-      
-      if (searchType === 'id') {
-        url = `https://data.gcis.nat.gov.tw/od/data/api/5F64D864-61CB-4D0D-8AD9-492047CC1EA6?$format=json&$filter=Business_Accounting_NO eq '${value}'&$skip=0&$top=1000`;
-      } else if (searchType === 'name') {
-        const skip = (pagination.current - 1) * pagination.pageSize;
-        const encodedValue = encodeURIComponent(value);
-        url = `https://data.gcis.nat.gov.tw/od/data/api/6BBA2268-1367-4B42-9CCA-BC17499EBE8C?$format=json&$filter=contains(Company_Name,'${encodedValue}') and Company_Status eq '01'&$skip=${skip}&$top=${pagination.pageSize}`;
-      } else if (searchType === 'business') {
-        url = `https://data.gcis.nat.gov.tw/od/data/api/7E6AFA72-AD6A-46D3-8681-ED77951D912D?$format=json&$filter=President_No eq '${value}'&$skip=0&$top=1000`;
-      }
-
-      const response = await axios.get(url, {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (response.data.length === 0) {
-        message.error('未找到相關資料');
-        setSearchResults([]);
-        return;
-      }
-
-      setSearchResults(response.data);
-      if (searchType === 'name') {
-        setPagination(prev => ({
-          ...prev,
-          total: response.data.length
-        }));
-      }
-    } catch (error) {
-      message.error('查詢失敗，請稍後再試');
-      console.error('API Error:', error);
-      setSearchResults([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleTableChange = (pagination) => {
-    setPagination(pagination);
-    handleSearch(searchResults[0]?.Company_Name || '');
-  };
-
   return (
     <div className="company-search">
       <Card className="search-card">
@@ -183,7 +217,7 @@ const CompanySearch = () => {
               onChange={(e) => setSearchType(e.target.value)}
               buttonStyle="solid"
             >
-              <Radio.Button value="id">公司統一編號</Radio.Button>
+              <Radio.Button value="id">統一編號查詢</Radio.Button>
               <Radio.Button value="name">公司名稱</Radio.Button>
               <Radio.Button value="business">商業登記</Radio.Button>
             </Radio.Group>
