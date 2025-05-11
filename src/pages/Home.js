@@ -20,8 +20,13 @@ const Home = () => {
 
     try {
       setLoading(true);
-      const url = `https://data.gcis.nat.gov.tw/od/data/api/5F64D864-61CB-4D0D-8AD9-492047CC1EA6?$format=json&$filter=Business_Accounting_NO eq ${value}&$skip=0&$top=1000`;
-      const response = await axios.get(url);
+      const url = `https://data.gcis.nat.gov.tw/od/data/api/5F64D864-61CB-4D0D-8AD9-492047CC1EA6?$format=json&$filter=Business_Accounting_NO eq '${value}'&$skip=0&$top=1000`;
+      const response = await axios.get(url, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
       
       if (response.data.length === 0) {
         message.error('未找到該公司資料');
