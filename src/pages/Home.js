@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Typography, Card, Row, Col, Input, Button, message, Divider, Spin } from 'antd';
+import { Typography, Card, Row, Col, Input, Button, message, Divider, Spin, Radio, Space } from 'antd';
 import { SearchOutlined, BarChartOutlined, SafetyOutlined, TeamOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -10,6 +10,7 @@ const { Search } = Input;
 
 const Home = () => {
   const [loading, setLoading] = useState(false);
+  const [searchType, setSearchType] = useState('id'); // 'id' 或 'business'
   const navigate = useNavigate();
 
   const handleSearch = async (value) => {
@@ -20,7 +21,14 @@ const Home = () => {
 
     try {
       setLoading(true);
-      const url = `https://data.gcis.nat.gov.tw/od/data/api/5F64D864-61CB-4D0D-8AD9-492047CC1EA6?$format=json&$filter=Business_Accounting_NO eq '${value}'&$skip=0&$top=1000`;
+      let url;
+      
+      if (searchType === 'id') {
+        url = `https://data.gcis.nat.gov.tw/od/data/api/5F64D864-61CB-4D0D-8AD9-492047CC1EA6?$format=json&$filter=Business_Accounting_NO eq '${value}'&$skip=0&$top=1000`;
+      } else if (searchType === 'business') {
+        url = `https://data.gcis.nat.gov.tw/od/data/api/7E6AFA72-AD6A-46D3-8681-ED77951D912D?$format=json&$filter=President_No eq '${value}'&$skip=0&$top=1000`;
+      }
+
       const response = await axios.get(url, {
         headers: {
           'Accept': 'application/json',
@@ -29,12 +37,13 @@ const Home = () => {
       });
       
       if (response.data.length === 0) {
-        message.error('未找到該公司資料');
+        message.error('未找到相關資料');
         return;
       }
 
-      // 導航到企業詳情頁面
-      navigate(`/company/${value}`);
+      // 根據查詢類型導向不同的詳情頁面
+      const id = searchType === 'id' ? response.data[0].Business_Accounting_NO : response.data[0].President_No;
+      navigate(`/company/${id}`);
     } catch (error) {
       message.error('查詢失敗，請稍後再試');
       console.error('API Error:', error);
@@ -51,15 +60,25 @@ const Home = () => {
           專業的企業資訊查詢與風險評估平台
         </Paragraph>
         <div className="search-container">
-          <Spin spinning={loading}>
-            <Search
-              placeholder="請輸入統一編號"
-              allowClear
-              enterButton={<Button type="primary" icon={<SearchOutlined />}>查詢</Button>}
-              size="large"
-              onSearch={handleSearch}
-            />
-          </Spin>
+          <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+            <Radio.Group 
+              value={searchType} 
+              onChange={(e) => setSearchType(e.target.value)}
+              buttonStyle="solid"
+            >
+              <Radio.Button value="id">公司統一編號</Radio.Button>
+              <Radio.Button value="business">商業登記</Radio.Button>
+            </Radio.Group>
+            <Spin spinning={loading}>
+              <Search
+                placeholder="請輸入統一編號"
+                allowClear
+                enterButton={<Button type="primary" icon={<SearchOutlined />}>查詢</Button>}
+                size="large"
+                onSearch={handleSearch}
+              />
+            </Spin>
+          </Space>
         </div>
       </div>
 

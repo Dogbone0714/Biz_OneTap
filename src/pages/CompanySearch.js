@@ -10,7 +10,7 @@ const { Search } = Input;
 const CompanySearch = () => {
   const [loading, setLoading] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
-  const [searchType, setSearchType] = useState('id'); // 'id' 或 'name'
+  const [searchType, setSearchType] = useState('id'); // 'id' 或 'name' 或 'business'
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -64,9 +64,60 @@ const CompanySearch = () => {
     },
   ];
 
+  const businessColumns = [
+    {
+      title: '商業名稱',
+      dataIndex: 'Business_Name',
+      key: 'Business_Name',
+    },
+    {
+      title: '統一編號',
+      dataIndex: 'President_No',
+      key: 'President_No',
+    },
+    {
+      title: '負責人',
+      dataIndex: 'President_Name',
+      key: 'President_Name',
+    },
+    {
+      title: '資本額',
+      dataIndex: 'Capital_Amount',
+      key: 'Capital_Amount',
+      render: (text) => `NT$ ${text.toLocaleString()}`,
+    },
+    {
+      title: '設立日期',
+      dataIndex: 'Establishment_Date',
+      key: 'Establishment_Date',
+    },
+    {
+      title: '營業狀態',
+      dataIndex: 'Business_Status',
+      key: 'Business_Status',
+    },
+    {
+      title: '管轄機關',
+      dataIndex: 'Agency',
+      key: 'Agency',
+    },
+    {
+      title: '操作',
+      key: 'action',
+      render: (_, record) => (
+        <Button 
+          type="link" 
+          onClick={() => navigate(`/company/${record.President_No}`)}
+        >
+          查看詳情
+        </Button>
+      ),
+    },
+  ];
+
   const handleSearch = async (value) => {
     if (!value) {
-      message.warning(`請輸入${searchType === 'id' ? '統一編號' : '公司名稱'}`);
+      message.warning(`請輸入${searchType === 'id' ? '統一編號' : searchType === 'name' ? '公司名稱' : '統一編號'}`);
       return;
     }
 
@@ -76,10 +127,12 @@ const CompanySearch = () => {
       
       if (searchType === 'id') {
         url = `https://data.gcis.nat.gov.tw/od/data/api/5F64D864-61CB-4D0D-8AD9-492047CC1EA6?$format=json&$filter=Business_Accounting_NO eq '${value}'&$skip=0&$top=1000`;
-      } else {
+      } else if (searchType === 'name') {
         const skip = (pagination.current - 1) * pagination.pageSize;
         const encodedValue = encodeURIComponent(value);
         url = `https://data.gcis.nat.gov.tw/od/data/api/6BBA2268-1367-4B42-9CCA-BC17499EBE8C?$format=json&$filter=contains(Company_Name,'${encodedValue}') and Company_Status eq '01'&$skip=${skip}&$top=${pagination.pageSize}`;
+      } else if (searchType === 'business') {
+        url = `https://data.gcis.nat.gov.tw/od/data/api/7E6AFA72-AD6A-46D3-8681-ED77951D912D?$format=json&$filter=President_No eq '${value}'&$skip=0&$top=1000`;
       }
 
       const response = await axios.get(url, {
@@ -90,7 +143,7 @@ const CompanySearch = () => {
       });
       
       if (response.data.length === 0) {
-        message.error('未找到相關公司資料');
+        message.error('未找到相關資料');
         setSearchResults([]);
         return;
       }
@@ -130,11 +183,12 @@ const CompanySearch = () => {
               onChange={(e) => setSearchType(e.target.value)}
               buttonStyle="solid"
             >
-              <Radio.Button value="id">統一編號</Radio.Button>
+              <Radio.Button value="id">公司統一編號</Radio.Button>
               <Radio.Button value="name">公司名稱</Radio.Button>
+              <Radio.Button value="business">商業登記</Radio.Button>
             </Radio.Group>
             <Search
-              placeholder={`請輸入${searchType === 'id' ? '統一編號' : '公司名稱'}`}
+              placeholder={`請輸入${searchType === 'id' ? '統一編號' : searchType === 'name' ? '公司名稱' : '統一編號'}`}
               allowClear
               enterButton={<Button type="primary" icon={<SearchOutlined />}>查詢</Button>}
               size="large"
@@ -148,9 +202,9 @@ const CompanySearch = () => {
         {searchResults.length > 0 && (
           <Card className="result-card">
             <Table
-              columns={columns}
+              columns={searchType === 'business' ? businessColumns : columns}
               dataSource={searchResults}
-              rowKey="Business_Accounting_NO"
+              rowKey={searchType === 'business' ? 'President_No' : 'Business_Accounting_NO'}
               pagination={searchType === 'name' ? {
                 ...pagination,
                 showSizeChanger: true,

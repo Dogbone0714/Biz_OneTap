@@ -8,27 +8,23 @@ import CompanyDetail from './pages/CompanyDetail';
 import About from './pages/About';
 import './App.css';
 
-const { Header, Content, Footer } = Layout;
+const { Content, Footer } = Layout;
 
 function App() {
   return (
     <Router>
       <Layout className="layout">
-        <Header>
-          <Navbar />
-        </Header>
-        <Content style={{ padding: '0 50px', marginTop: 64 }}>
-          <div className="site-layout-content">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/search" element={<CompanySearch />} />
-              <Route path="/company/:id" element={<CompanyDetail />} />
-              <Route path="/about" element={<About />} />
-            </Routes>
-          </div>
+        <Navbar />
+        <Content className="content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/search" element={<CompanySearch />} />
+            <Route path="/company/:id" element={<CompanyDetail />} />
+            <Route path="/about" element={<About />} />
+          </Routes>
         </Content>
-        <Footer style={{ textAlign: 'center' }}>
-          企業一指通 ©{new Date().getFullYear()} 版權所有
+        <Footer className="footer">
+          企業一指通 ©{new Date().getFullYear()} Created by Your Company
         </Footer>
       </Layout>
     </Router>
